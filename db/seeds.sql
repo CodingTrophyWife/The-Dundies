@@ -1,4 +1,4 @@
-INSERT INTO department (department_name)
+INSERT INTO department (name)
 VALUES
   ('HR'),
   ('Corporate'),
@@ -24,20 +24,20 @@ VALUES
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-  ('Dwight', 'Schrute', 8, ?),
-  ('Michael', 'Scott', 2, ?),
-  ('Pam', 'Beesly', 3, ?),
-  ('Jim', 'Halpert', 2, ?),
-  ('Oscar', 'Martinez', 4, ?),
-  ('Kevin', 'Malone', 4, ?)
-  ('Andy', 'Bernard', 5, ?),
-  ('Angela', 'Martin', 4, ?),
-  ('Stanley', 'Hudson', 5, ?),
-  ('Toby', 'Flenderson', 1, ?),
-  ('Kelly', 'Kapoor', 6, ?),
-  ('Meredith', 'Palmer', 6, ?),
-  ('Phyllis', 'Lapin-Vance', 5, ?),
-  ('Darryl', 'Philbin', 2, ?),
-  ('Roy', 'Anderson', 7, ?),
-  ('Erin', 'Hannon', 3, ?),
-  ('Holly', 'Flax', 1, ?);
+  (1,'Dwight', 'Schrute', 20, 2),
+  (2,'Michael', 'Scott', 12, NULL),
+  (3,'Pam', 'Beesly', 14, 2),
+  (4,'Jim', 'Halpert', 13, 2),
+  (5,'Oscar', 'Martinez', 15, 2),
+  (6,'Kevin', 'Malone', 15, 2)
+  (7,'Andy', 'Bernard', 16, 2),
+  (8,'Angela', 'Martin', 15, 2),
+  (9,'Stanley', 'Hudson', 16, 2),
+  (10,'Toby', 'Flenderson', 11, NULL),
+  (11,'Kelly', 'Kapoor', 17, 2),
+  (12,'Meredith', 'Palmer', 17, 2),
+  (13,'Phyllis', 'Lapin-Vance', 16, 2),
+  (14,'Darryl', 'Philbin', 19, NULL),
+  (15,'Roy', 'Anderson', 18, 14),
+  (16,'Erin', 'Hannon', 14, 2),
+  (17,'Holly', 'Flax', 11, NULL);

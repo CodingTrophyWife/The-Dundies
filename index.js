@@ -1,5 +1,4 @@
 const inquirer = require('inquirer');
-const cTable = require('console.table');
 const db = require("./db/connection.js");
 
 const PORT = process.env.PORT || 3001;
@@ -7,14 +6,14 @@ const PORT = process.env.PORT || 3001;
 
 
 function promptUser() {
-    inquirer.prompt([{
+    inquirer.prompt({
         type: 'list',
         name: 'mainMenu',
         message: 'What would you like to do?',
         choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add A Department', 'Add A Role', 'Add Employee', 'Update Employee Role'],
     }
-]).then(function (questions) {
-    switch (questions) {
+).then(function (answers) {
+    switch (answers.mainMenu) {
         case "View All Employees":
           viewAllEmployees();
           break;
@@ -36,16 +35,13 @@ function promptUser() {
         case "Add Employee":
           addEmployee();
           break;
-        case "Quit":
-          console.log("Goodbye!");
-          process.exit();
       }
     });
 }
- 
+
 function viewAllEmployees() {
     db.query(`
-      SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+    SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
       FROM employee
       LEFT JOIN role ON employee.role_id = role.id
       LEFT JOIN department ON role.department_id = department.id
@@ -64,7 +60,7 @@ function updateEmployeeRole() {
       .prompt([
         {
           type: "input",
-          message: "Enter the ID of the employee whose role you want to update:",
+          message: "Enter the name of the employee whose role you want to update:",
           name: "employeeId",
         },
         {
@@ -129,7 +125,7 @@ function addRole() {
           type: "list",
           name: "department",
           message: "Which department does the new role belong to?",
-          choices: ['Sales','IT','Marketing','Operations','Finance','Customer Support'],  
+          choices: ['HR', 'Corporate', 'Reception', 'Accounting', 'Sales', 'Quality Assurance', 'Warehouse', 'Dwights Made Up Department'],  
         },
       ])
       .then((answers) => {
@@ -153,15 +149,26 @@ function viewAllDepartments() {
   
     db.query(sql, (err, results) => {
       if (err) throw err;
-  
       console.table(results);
   
       // call the main menu function to allow the user to make another selection
       promptUser();
     });
   }
-  
-function addEmployee() {
+
+async function runQuery(query) {
+  const results = await db.promise().query(query);
+  return results[0];
+}
+
+async function addEmployee() {
+  var query = "SELECT id, title AS 'value' FROM role";
+  var roles = await runQuery(query);
+  query = "SELECT id, CONCAT(first_name, ' ',last_name) AS 'value' FROM employee";
+  var employees = await runQuery(query);
+
+  //console.table(roles);
+  //console.table(employees);
     // Prompt the user to enter employee details
     inquirer
       .prompt([
@@ -177,22 +184,23 @@ function addEmployee() {
         },
         {
           type: "list",
-          name: "roleId",
+          name: "role",
           message: "Select the employee's role:",
-          choices: ["Sales Lead", "IT Manager", "Marketing Lead", "Marketing Manager", "CEO", "HR", "CFO", "CTO", "Sales Manager", "Accountant", "CMO"],
+          choices: roles,
         },
         {
-          type: "input",
-          name: "managerId",
-          message: "Enter the employee's manager ID (if applicable):",
+          type: "list",
+          name: "manager",
+          message: "Select the employee's manager (if applicable)",
+          choices: ['Michael Scott', 'Toby Flenderson', 'Darryl Philbin', 'Holly Flax'],
         },
       ])
       .then((answers) => {
         // Insert the employee into the database
-        const roleId = getRoleIdByName(answers.roleId);
-        const managerId = answers.managerId || null;
+        const role_id = roles.find(o => o.value === answers.role).id;
+        const manager_id = employees.find(o => o.value === answers.manager).id;
         const query = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
-        db.query(query, [answers.firstName, answers.lastName, roleId, managerId], (err, res) => {
+        db.query(query, [answers.firstName, answers.lastName, role_id, manager_id], (err, res) => {
           if (err) throw err;
           console.log(`Added employee ${answers.firstName} ${answers.lastName}.`);
           // Show the main menu again
