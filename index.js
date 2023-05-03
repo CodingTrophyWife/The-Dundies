@@ -4,7 +4,7 @@ const db = require("./db/connection.js");
 const PORT = process.env.PORT || 3001;
 
 
-
+// the main menu that everyone sees when they run the program 
 function promptUser() {
     inquirer.prompt({
         type: 'list',
@@ -38,7 +38,7 @@ function promptUser() {
       }
     });
 }
-
+//  when they click on view all employees, a table will show up with all the employees and their department and salary and manager name
 function viewAllEmployees() {
     db.query(`
     SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
@@ -54,13 +54,13 @@ function viewAllEmployees() {
     });
   }
   
-
+//  when they click on update employee role they will have to enter the id of the employee and the new role id you want to assign to them
 function updateEmployeeRole() {
     inquirer
       .prompt([
         {
           type: "input",
-          message: "Enter the name of the employee whose role you want to update:",
+          message: "Enter the id of the employee whose role you want to update:",
           name: "employeeId",
         },
         {
@@ -87,28 +87,24 @@ function updateEmployeeRole() {
       });
 }
   
-
+// when they click on view all roles, a table will pop up the the roles
 function viewAllRoles() {
-    // Query to fetch all roles
     const sql = `SELECT role.title AS title, department.name AS department, role.salary
     FROM role
     LEFT JOIN department ON role.department_id = department.id
     ORDER BY role.salary DESC`;
   
-    // Execute the query
     db.query(sql, (err, results) => {
       if (err) throw err;
   
-      // Display the results
       console.table(results);
   
-      // Call the function to display the menu again
       promptUser();
     });
 }
-
+// when they click on add a role, they will be asked what the title will be and what the salary is and what department it belongs to
 function addRole() {
-    // prompt the user for information about the new role
+  
     inquirer
       .prompt([
         {
@@ -129,7 +125,7 @@ function addRole() {
         },
       ])
       .then((answers) => {
-        // query the database to insert the new role
+       
         const query = `
           INSERT INTO role (title, salary, department_id)
           VALUES (?, ?, (SELECT id FROM department WHERE name = ?))
@@ -137,13 +133,13 @@ function addRole() {
         const values = [answers.title, answers.salary, answers.department];
         db.query(query, values, (err, res) => {
           if (err) throw err;
-          // call the main menu again
+     
           promptUser();
         });
       });
   }
   
-
+// when they click on view all departments, then a table will show up with all the departments 
 function viewAllDepartments() {
     const sql = `SELECT * FROM department`;
   
@@ -151,7 +147,7 @@ function viewAllDepartments() {
       if (err) throw err;
       console.table(results);
   
-      // call the main menu function to allow the user to make another selection
+  
       promptUser();
     });
   }
@@ -160,16 +156,13 @@ async function runQuery(query) {
   const results = await db.promise().query(query);
   return results[0];
 }
-
+// when they click on add employee they will be asked to enter the first name, last name, the role and the manager assigned to them
 async function addEmployee() {
   var query = "SELECT id, title AS 'value' FROM role";
   var roles = await runQuery(query);
   query = "SELECT id, CONCAT(first_name, ' ',last_name) AS 'value' FROM employee";
   var employees = await runQuery(query);
 
-  //console.table(roles);
-  //console.table(employees);
-    // Prompt the user to enter employee details
     inquirer
       .prompt([
         {
@@ -203,13 +196,13 @@ async function addEmployee() {
         db.query(query, [answers.firstName, answers.lastName, role_id, manager_id], (err, res) => {
           if (err) throw err;
           console.log(`Added employee ${answers.firstName} ${answers.lastName}.`);
-          // Show the main menu again
+         
           promptUser();
         });
       });
   }
   
-
+// when they click on add department they will be asked to name the new department 
 function addDepartment() {
   // code to add a new department
   inquirer
@@ -223,7 +216,7 @@ function addDepartment() {
     const query = `INSERT INTO department (name) VALUES ('${answer.departmentName}')`;
     db.query(query, (err, res) => {
       if (err) throw err;
-      // return to the main menu
+      
       promptUser();
     });
   });
